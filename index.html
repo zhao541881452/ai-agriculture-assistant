@@ -10,7 +10,6 @@
     <!-- Markdown 渲染 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    
     <style>
         body {
             font-family: Arial;
@@ -35,23 +34,22 @@
             padding: 12px;
             border-radius: 15px;
             max-width: 80%;
-            display: inline-block;
+            display: block;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            word-wrap: break-word;
         }
-        
+
         .user {
             background: #007bff;
             color: white;
-            float: right;
-            clear: both;
+            margin-left: auto;
         }
-        
+
         .ai {
             background: white;
-            float: left;
-            clear: both;
+            margin-right: auto;
         }
-        
+
         #inputBox {
             position: fixed;
             bottom: 0;
@@ -61,14 +59,14 @@
             box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
             text-align: center;
         }
-        
+
         input {
             width: 60%;
             padding: 12px;
             border-radius: 10px;
             border: 1px solid #ccc;
         }
-        
+
         button {
             padding: 10px 15px;
             border-radius: 8px;
@@ -77,44 +75,47 @@
             color: white;
             cursor: pointer;
         }
-        
+
         button:hover {
             background: #218838;
         }
     </style>
-
 </head>
 
 <body>
 
 <h2>🌾 AI农业助手</h2>
 
+<!-- 清空按钮 -->
 <div style="text-align:center;margin-bottom:10px;">
     <button onclick="clearChat()">🧹 清空聊天</button>
 </div>
 
-    
 <div id="chat"></div>
 
 <div id="inputBox">
     <input id="question" placeholder="输入问题..." onkeydown="handleKey(event)">
-    <button onclick="ask()">发送</button>
+    <button id="sendBtn" onclick="ask()">发送</button>
 </div>
 
 <script>
 async function ask() {
     let q = document.getElementById("question").value;
     let chat = document.getElementById("chat");
+    let btn = document.getElementById("sendBtn");
 
-    if (!q) return;
+    // ✅ 问题2修复：过滤空格输入
+    if (!q.trim()) return;
 
-    // 👉 用户消息
+    btn.disabled = true;
+
+    // 用户消息
     let userDiv = document.createElement("div");
     userDiv.className = "msg user";
     userDiv.innerText = q;
     chat.appendChild(userDiv);
 
-    // 👉 AI消息框
+    // AI消息
     let aiDiv = document.createElement("div");
     aiDiv.className = "msg ai";
     aiDiv.innerText = "🤖 思考中...";
@@ -122,7 +123,6 @@ async function ask() {
 
     document.getElementById("question").value = "";
 
-    // 👉 请求流式接口
     let res = await fetch(`/chat_stream?q=${encodeURIComponent(q)}`);
     let reader = res.body.getReader();
     let decoder = new TextDecoder();
@@ -137,26 +137,33 @@ async function ask() {
         let chunk = decoder.decode(value);
         fullText += chunk;
 
-        // 👉 Markdown 渲染
         aiDiv.innerHTML = marked.parse(fullText);
 
-        // 👉 自动滚动
+        // 自动滚动
         window.scrollTo(0, document.body.scrollHeight);
     }
+
+    // ✅ 问题3修复：恢复按钮
+    btn.disabled = false;
+
+    // 自动滚到底（双保险）
+    chat.scrollTop = chat.scrollHeight;
 }
 
+// 回车发送
 function handleKey(e) {
     if (e.key === "Enter") {
         ask();
     }
 }
 
+// 清空聊天
 function clearChat() {
     document.getElementById("chat").innerHTML = "";
 }
-    
-document.getElementById("question").focus();
 
+// 自动聚焦
+document.getElementById("question").focus();
 </script>
 
 </body>
