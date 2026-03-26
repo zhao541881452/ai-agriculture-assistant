@@ -8,11 +8,11 @@ from fastapi.responses import StreamingResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
-
 
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 # 🔥 加这个（允许跨域）
 app.add_middleware(
