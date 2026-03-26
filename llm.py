@@ -19,25 +19,10 @@ def chat_with_llm(messages):
 
 
 
-# ✅ 流式版本（新增🔥）
 def chat_with_llm_stream(messages):
-    from rag import search_knowledge
-
-    user_question = messages[-1]["content"]
-    knowledge = search_knowledge(user_question)
-
-    system_prompt = f"""
-你是一名农业专家，请结合以下知识回答问题：
-
-{knowledge}
-"""
-
     stream = client.chat.completions.create(
         model="Qwen/Qwen2.5-7B-Instruct",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            *messages
-        ],
+        messages=messages,
         stream=True
     )
 
