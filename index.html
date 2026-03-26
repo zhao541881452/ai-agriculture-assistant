@@ -1,3 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI农业助手</title>
+</head>
+<body>
+
+<h2>AI农业助手 🌾</h2>
+
+<input id="question" placeholder="输入问题" style="width:300px;">
+<button onclick="ask()">提问</button>
+
+<pre id="answer"></pre>
+
 <script>
 async function ask() {
     let q = document.getElementById("question").value;
@@ -8,3 +23,6 @@ async function ask() {
     document.getElementById("answer").innerText = data.answer;
 }
 </script>
+
+</body>
+</html>
