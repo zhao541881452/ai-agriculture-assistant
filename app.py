@@ -54,7 +54,7 @@ def chat_stream(q: str):
             yield chunk
 
         chat_history.append({"role": "assistant", "content": answer})
-    return StreamingResponse(generate(), media_type="text/event-stream")
+    return StreamingResponse(generate(), media_type="text/plain")
 
 import os
 

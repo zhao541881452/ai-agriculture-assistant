@@ -1,22 +1,31 @@
 <script>
 async function ask() {
-    let q = document.getElementById("question").value;
+    try {
+        let q = document.getElementById("question").value;
 
-    let res = await fetch(`/chat_stream?q=${encodeURIComponent(q)}`);
+        let res = await fetch(`/chat_stream?q=${encodeURIComponent(q)}`);
 
-    let reader = res.body.getReader();
-    let decoder = new TextDecoder();
+        if (!res.ok) {
+            document.getElementById("answer").innerText = "请求失败：" + res.status;
+            return;
+        }
 
-    let answerBox = document.getElementById("answer");
-    answerBox.innerText = "";
+        let reader = res.body.getReader();
+        let decoder = new TextDecoder();
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        let answerBox = document.getElementById("answer");
+        answerBox.innerText = "思考中...\n";
 
-        let chunk = decoder.decode(value, { stream: true });
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        answerBox.innerText += chunk;
+            let chunk = decoder.decode(value, { stream: true });
+            answerBox.innerText += chunk;
+        }
+
+    } catch (err) {
+        document.getElementById("answer").innerText = "错误：" + err;
     }
 }
 </script>
