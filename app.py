@@ -3,9 +3,10 @@ from llm import chat_with_llm
 from llm import chat_with_llm_stream
 
 
-# 🔥 加这个
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse
+
 
 
 app = FastAPI()
@@ -23,7 +24,7 @@ chat_history = []
 
 @app.get("/")
 def read_root():
-    return {"msg": "AI农业助手启动成功"}
+    return FileResponse("index.html")
 
 @app.get("/chat")
 def chat(q: str):
