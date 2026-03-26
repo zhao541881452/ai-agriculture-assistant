@@ -55,3 +55,12 @@ def chat_stream(q: str):
         chat_history.append({"role": "assistant", "content": answer})
     return StreamingResponse(generate(), media_type="text/event-stream")
 
+import os
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "app:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000))
+    )
