@@ -1,8 +1,12 @@
-from openai import OpenAI
 import os
+from openai import OpenAI
+
+api_key = os.getenv("API_KEY")
+
+print("当前API_KEY：", api_key)  # 👈 加这一行调试
 
 client = OpenAI(
-    api_key=os.getenv("API_KEY"),
+    api_key=api_key,
     base_url="https://api.siliconflow.cn/v1"
 )
 
