@@ -29,6 +29,10 @@ chat_history = []
 def read_root():
     return FileResponse("index.html")
 
+@app.get("/favicon.ico")
+def favicon():
+    return FileResponse("favicon.ico")
+
 @app.get("/chat")
 def chat(q: str):
     global chat_history
