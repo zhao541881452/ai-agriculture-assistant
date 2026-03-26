@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <title>AI农业助手</title>
 
-    <!-- favicon -->
     <link rel="icon" href="/favicon.ico">
 
-    <!-- Markdown 渲染 -->
+    <!-- Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
@@ -34,7 +33,7 @@
             padding: 12px;
             border-radius: 15px;
             max-width: 80%;
-            display: block;
+            display: inline-block; /* ✅ 关键：长度自适应 */
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             word-wrap: break-word;
         }
@@ -42,12 +41,14 @@
         .user {
             background: #007bff;
             color: white;
-            margin-left: auto;
+            float: right;
+            clear: both;
         }
 
         .ai {
             background: white;
-            margin-right: auto;
+            float: left;
+            clear: both;
         }
 
         #inputBox {
@@ -86,7 +87,6 @@
 
 <h2>🌾 AI农业助手</h2>
 
-<!-- 清空按钮 -->
 <div style="text-align:center;margin-bottom:10px;">
     <button onclick="clearChat()">🧹 清空聊天</button>
 </div>
@@ -99,12 +99,21 @@
 </div>
 
 <script>
+
+// ✅ 页面加载时恢复历史记录
+window.onload = function() {
+    let history = localStorage.getItem("chatHistory");
+    if (history) {
+        document.getElementById("chat").innerHTML = history;
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+};
+
 async function ask() {
     let q = document.getElementById("question").value;
     let chat = document.getElementById("chat");
     let btn = document.getElementById("sendBtn");
 
-    // ✅ 问题2修复：过滤空格输入
     if (!q.trim()) return;
 
     btn.disabled = true;
@@ -138,16 +147,13 @@ async function ask() {
         fullText += chunk;
 
         aiDiv.innerHTML = marked.parse(fullText);
-
-        // 自动滚动
         window.scrollTo(0, document.body.scrollHeight);
     }
 
-    // ✅ 问题3修复：恢复按钮
     btn.disabled = false;
 
-    // 自动滚到底（双保险）
-    chat.scrollTop = chat.scrollHeight;
+    // ✅ 保存历史记录
+    localStorage.setItem("chatHistory", chat.innerHTML);
 }
 
 // 回车发送
@@ -157,13 +163,15 @@ function handleKey(e) {
     }
 }
 
-// 清空聊天
+// 清空聊天（同时清空缓存）
 function clearChat() {
     document.getElementById("chat").innerHTML = "";
+    localStorage.removeItem("chatHistory");
 }
 
 // 自动聚焦
 document.getElementById("question").focus();
+
 </script>
 
 </body>
