@@ -126,17 +126,12 @@ async function ask() {
     userDiv.className = "msg user";
     userDiv.innerText = q;
     chat.appendChild(userDiv);
-
-    // ✅ 每次新增就滚动（第1处）
     chat.scrollTop = chat.scrollHeight;
 
     // AI消息
     let aiDiv = document.createElement("div");
     aiDiv.className = "msg ai";
-    aiDiv.innerText = "🤖 思考中...";
     chat.appendChild(aiDiv);
-
-    // ✅ 每次新增就滚动（第2处）
     chat.scrollTop = chat.scrollHeight;
 
     document.getElementById("question").value = "";
@@ -146,7 +141,19 @@ async function ask() {
     let decoder = new TextDecoder();
 
     let fullText = "";
-    aiDiv.innerHTML = "";
+    let displayedText = "";
+
+    // ✨ 打字函数
+    function typeWriter() {
+        if (displayedText.length < fullText.length) {
+            displayedText += fullText.charAt(displayedText.length);
+
+            aiDiv.innerHTML = marked.parse(displayedText);
+            chat.scrollTop = chat.scrollHeight;
+
+            setTimeout(typeWriter, 20); // 👉 速度（越小越快）
+        }
+    }
 
     while (true) {
         const { done, value } = await reader.read();
@@ -155,20 +162,20 @@ async function ask() {
         let chunk = decoder.decode(value);
         fullText += chunk;
 
-        aiDiv.innerHTML = marked.parse(fullText);
-
-        // ✅ 流式过程中持续滚动（第3处）
-        chat.scrollTop = chat.scrollHeight;
+        // 👉 启动打字（只启动一次）
+        if (displayedText.length === 0) {
+            typeWriter();
+        }
     }
 
     btn.disabled = false;
 
     // 保存历史
-    localStorage.setItem("chatHistory", chat.innerHTML);
-
-    // ✅ 最后再保险滚一次（第4处）
-    chat.scrollTop = chat.scrollHeight;
+    setTimeout(() => {
+        localStorage.setItem("chatHistory", chat.innerHTML);
+    }, 500);
 }
+
 
 // 回车发送
 function handleKey(e) {
