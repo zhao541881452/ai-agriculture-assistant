@@ -25,8 +25,8 @@
             max-width: 700px;
             margin: auto;
             padding: 10px;
-            margin-bottom: 100px;
-            padding-bottom: 120px;
+            height: calc(100vh - 140px);
+            overflow-y: auto;
         }
 
         .msg {
@@ -56,6 +56,7 @@
             position: fixed;
             bottom: 0;
             width: 100%;
+            height: 80px; /* ✅ 固定高度 */
             background: white;
             padding: 10px;
             box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
@@ -101,12 +102,13 @@
 
 <script>
 
-// ✅ 页面加载时恢复历史记录
 window.onload = function() {
     let history = localStorage.getItem("chatHistory");
+    let chat = document.getElementById("chat");
+
     if (history) {
-        document.getElementById("chat").innerHTML = history;
-        chat.scrollTop = chat.scrollHeight;
+        chat.innerHTML = history;
+        chat.scrollTop = chat.scrollHeight; // ✅ 初始化滚动到底
     }
 };
 
@@ -125,11 +127,17 @@ async function ask() {
     userDiv.innerText = q;
     chat.appendChild(userDiv);
 
+    // ✅ 每次新增就滚动（第1处）
+    chat.scrollTop = chat.scrollHeight;
+
     // AI消息
     let aiDiv = document.createElement("div");
     aiDiv.className = "msg ai";
     aiDiv.innerText = "🤖 思考中...";
     chat.appendChild(aiDiv);
+
+    // ✅ 每次新增就滚动（第2处）
+    chat.scrollTop = chat.scrollHeight;
 
     document.getElementById("question").value = "";
 
@@ -148,13 +156,18 @@ async function ask() {
         fullText += chunk;
 
         aiDiv.innerHTML = marked.parse(fullText);
+
+        // ✅ 流式过程中持续滚动（第3处）
         chat.scrollTop = chat.scrollHeight;
     }
 
     btn.disabled = false;
 
-    // ✅ 保存历史记录
+    // 保存历史
     localStorage.setItem("chatHistory", chat.innerHTML);
+
+    // ✅ 最后再保险滚一次（第4处）
+    chat.scrollTop = chat.scrollHeight;
 }
 
 // 回车发送
@@ -164,9 +177,10 @@ function handleKey(e) {
     }
 }
 
-// 清空聊天（同时清空缓存）
+// 清空聊天
 function clearChat() {
-    document.getElementById("chat").innerHTML = "";
+    let chat = document.getElementById("chat");
+    chat.innerHTML = "";
     localStorage.removeItem("chatHistory");
 }
 
@@ -174,6 +188,7 @@ function clearChat() {
 document.getElementById("question").focus();
 
 </script>
+
 
 </body>
 </html>
