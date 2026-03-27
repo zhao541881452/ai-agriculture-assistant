@@ -1,138 +1,153 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>AI农业助手</title>
+<meta charset="UTF-8">
+<title>AI农业助手</title>
 
-    <link rel="icon" href="/favicon.ico">
+<link rel="icon" href="/favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <!-- Markdown -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    background: #f7f7f8;
+    margin: 0;
+}
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f0f2f5;
-            margin: 0;
-        }
+h2 {
+    text-align: center;
+    margin: 20px 0 10px;
+}
 
-        h2 {
-            text-align: center;
-            margin-top: 20px;
-        }
+/* 清空按钮 */
+.top-bar {
+    text-align: center;
+    margin-bottom: 10px;
+}
 
-        #chat {
-            max-width: 700px;
-            margin: auto;
-            padding: 10px;
-            height: calc(100vh - 140px);
-            overflow-y: auto;
-        }
+.clear-btn {
+    background: #ff4d4f;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
 
-        .msg {
-            margin: 10px;
-            padding: 12px;
-            border-radius: 15px;
-            max-width: 80%;
-            display: inline-block; /* ✅ 关键：长度自适应 */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            word-wrap: break-word;
-        }
+.clear-btn:hover {
+    background: #d9363e;
+}
 
-        .user {
-            background: #007bff;
-            color: white;
-            float: right;
-            clear: both;
-        }
+/* 聊天区域 */
+#chat {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    padding-bottom: 140px;
+    box-sizing: border-box;
+}
 
-        .ai {
-            background: white;
-            float: left;
-            clear: both;
-        }
+/* 气泡 */
+.msg {
+    margin: 10px 0;
+    padding: 12px 16px;
+    border-radius: 16px;
+    max-width: fit-content;
+    word-break: break-word;
+    line-height: 1.5;
+}
 
-        #inputBox {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 80px; /* ✅ 固定高度 */
-            background: white;
-            padding: 10px;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+.user {
+    background: #007bff;
+    color: white;
+    margin-left: auto;
+}
 
-        input {
-            width: 60%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-        }
+.ai {
+    background: white;
+    border: 1px solid #eee;
+}
 
-        button {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: none;
-            background: #28a745;
-            color: white;
-            cursor: pointer;
-        }
+/* 输入区域 */
+#inputBox {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: white;
+    border-top: 1px solid #ddd;
+    padding: 10px 0;
+}
 
-        button:hover {
-            background: #218838;
-        }
-    </style>
+/* 输入容器 */
+.input-inner {
+    max-width: 800px;
+    margin: auto;
+    display: flex;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: #10a37f;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0e8c6d;
+}
+</style>
 </head>
 
 <body>
 
 <h2>🌾 AI农业助手</h2>
 
-<div style="text-align:center;margin-bottom:10px;">
-    <button onclick="clearChat()">🧹 清空聊天</button>
+<div class="top-bar">
+    <button class="clear-btn" onclick="clearChat()">🧹 清空聊天</button>
 </div>
 
 <div id="chat"></div>
 
 <div id="inputBox">
-    <input id="question" placeholder="输入问题..." onkeydown="handleKey(event)">
-    <button id="sendBtn" onclick="ask()">发送</button>
+    <div class="input-inner">
+        <input id="question" placeholder="输入问题..." onkeydown="handleKey(event)">
+        <button onclick="ask()">发送</button>
+    </div>
 </div>
 
 <script>
-
-window.onload = function() {
-    let history = localStorage.getItem("chatHistory");
-    let chat = document.getElementById("chat");
-
+window.onload = () => {
+    const history = localStorage.getItem("chatHistory");
     if (history) {
-        chat.innerHTML = history;
-        chat.scrollTop = chat.scrollHeight; // ✅ 初始化滚动到底
+        document.getElementById("chat").innerHTML = history;
     }
 };
 
 async function ask() {
     let q = document.getElementById("question").value;
     let chat = document.getElementById("chat");
-    let btn = document.getElementById("sendBtn");
 
     if (!q.trim()) return;
 
-    btn.disabled = true;
-
-    // 用户消息
     let userDiv = document.createElement("div");
     userDiv.className = "msg user";
     userDiv.innerText = q;
     chat.appendChild(userDiv);
-    chat.scrollTop = chat.scrollHeight;
 
-    // AI消息
     let aiDiv = document.createElement("div");
     aiDiv.className = "msg ai";
     chat.appendChild(aiDiv);
-    chat.scrollTop = chat.scrollHeight;
 
     document.getElementById("question").value = "";
 
@@ -141,19 +156,6 @@ async function ask() {
     let decoder = new TextDecoder();
 
     let fullText = "";
-    let displayedText = "";
-
-    // ✨ 打字函数
-    function typeWriter() {
-        if (displayedText.length < fullText.length) {
-            displayedText += fullText.charAt(displayedText.length);
-
-            aiDiv.innerHTML = marked.parse(displayedText);
-            chat.scrollTop = chat.scrollHeight;
-
-            setTimeout(typeWriter, 20); // 👉 速度（越小越快）
-        }
-    }
 
     while (true) {
         const { done, value } = await reader.read();
@@ -162,40 +164,24 @@ async function ask() {
         let chunk = decoder.decode(value);
         fullText += chunk;
 
-        // 👉 启动打字（只启动一次）
-        if (displayedText.length === 0) {
-            typeWriter();
-        }
+        aiDiv.innerHTML = marked.parse(fullText);
+        window.scrollTo(0, document.body.scrollHeight);
     }
 
-    btn.disabled = false;
-
-    // 保存历史
     setTimeout(() => {
         localStorage.setItem("chatHistory", chat.innerHTML);
-    }, 500);
+    }, 300);
 }
 
-
-// 回车发送
 function handleKey(e) {
-    if (e.key === "Enter") {
-        ask();
-    }
+    if (e.key === "Enter") ask();
 }
 
-// 清空聊天
 function clearChat() {
-    let chat = document.getElementById("chat");
-    chat.innerHTML = "";
+    document.getElementById("chat").innerHTML = "";
     localStorage.removeItem("chatHistory");
 }
-
-// 自动聚焦
-document.getElementById("question").focus();
-
 </script>
-
 
 </body>
 </html>
