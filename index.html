@@ -26,6 +26,7 @@
             margin: auto;
             padding: 10px;
             margin-bottom: 100px;
+            padding-bottom: 120px;
         }
 
         .msg {
@@ -105,7 +106,7 @@ window.onload = function() {
     let history = localStorage.getItem("chatHistory");
     if (history) {
         document.getElementById("chat").innerHTML = history;
-        window.scrollTo(0, document.body.scrollHeight);
+        chat.scrollTop = chat.scrollHeight;
     }
 };
 
@@ -147,7 +148,7 @@ async function ask() {
         fullText += chunk;
 
         aiDiv.innerHTML = marked.parse(fullText);
-        window.scrollTo(0, document.body.scrollHeight);
+        chat.scrollTop = chat.scrollHeight;
     }
 
     btn.disabled = false;
